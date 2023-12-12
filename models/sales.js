@@ -33,5 +33,5 @@ const SaleSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const Sales = mongoose.model("sales", SaleSchema);
+const Sales = mongoose.model("Customer_Sales", SaleSchema);
 module.exports = Sales;

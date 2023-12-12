@@ -31,7 +31,7 @@ app.use("/api/sales", salesRoute);
 let userAuthCheck;
 app.post("/api/login", async (req, res) => {
   console.log(req.body);
-  // res.send("hi");
+  //res.send("hi");
   try {
     const user = await User.findOne({
       email: req.body.email,
@@ -59,20 +59,22 @@ app.get("/api/login", (req, res) => {
 
 // Registration API
 app.post("/api/register", (req, res) => {
+  console.log("trying to register");
   let registerUser = new User({
-    firstName: req.body.firstName,
-    lastName: req.body.lastName,
+    name: req.body.firstName,
+    merchant_id:req.body.merchantId,
+    shop_name:req.body.shopName,
     email: req.body.email,
+    phone:req.body.phone,
+    address:req.body.address,
     password: req.body.password,
-    phoneNumber: req.body.phoneNumber,
-    imageUrl: req.body.imageUrl,
   });
 
   registerUser
     .save()
     .then((result) => {
       res.status(200).send(result);
-      alert("Signup Successfull");
+      //alert("Signup Successfull");
     })
     .catch((err) => console.log("Signup: ", err));
   console.log("request: ", req.body);

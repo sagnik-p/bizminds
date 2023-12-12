@@ -28,5 +28,5 @@ const PurchaseSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const Purchase = mongoose.model("purchase", PurchaseSchema);
+const Purchase = mongoose.model("Merchant_Purchases", PurchaseSchema);
 module.exports = Purchase;
