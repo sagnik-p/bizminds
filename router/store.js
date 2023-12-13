@@ -3,6 +3,7 @@ const app = express();
 const router=express.Router();
 const supplier = require("../controller/store");
 const Supplier = require("../models/suppliers.js");
+const Product=require("../models/product.js");
 
 // Add Supplier
 router.post("/add", async (req, res) => {
@@ -123,7 +124,7 @@ router.get('/get_supplier/:supplier_id', async (req, res) => {
 });
 
 
-router.get('/by_product/:product_id', async (req, res) => {
+router.get('/by_productID/:product_id', async (req, res) => {
     try {
         const productId = req.params.product_id;
 
@@ -155,6 +156,39 @@ router.get('/by_product/:product_id', async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
+
+router.get('/by_product_name/:name', async (req, res) => {
+  try {
+    const productName = req.params.name;
+
+    // Find product details by name
+    const product = await Product.findOne({ name: {$regex:productName,$options:"i"} });
+
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    // Fetch suppliers selling this product
+    const suppliers = await Supplier.find({ products_sold: product.product_id });
+
+    if (!suppliers || suppliers.length === 0) {
+      return res.status(404).json({ message: 'Suppliers not found for this product' });
+    }
+
+    // Sort suppliers based on the 0th index of ratings array
+    suppliers.sort((a, b) => {
+      const ratingA = a.rating && a.rating.length > 0 ? parseFloat(a.rating[0]) : 0;
+      const ratingB = b.rating && b.rating.length > 0 ? parseFloat(b.rating[0]) : 0;
+      return ratingB - ratingA; // Sort in descending order of the 0th index of ratings
+    });
+
+    res.json({ product: product, suppliers: suppliers });
+  } catch (error) {
+    console.error('Error while fetching supplier info:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
   
 
 module.exports = router;
