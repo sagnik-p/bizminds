@@ -2,42 +2,97 @@ const Purchase = require("../models/purchase");
 const purchaseStock = require("./purchaseStock");
 
 // Add Purchase Details
-const addPurchase = (req, res) => {
-  const addPurchaseDetails = new Purchase({
-    userID: req.body.userID,
-    ProductID: req.body.productID,
-    QuantityPurchased: req.body.quantityPurchased,
-    PurchaseDate: req.body.purchaseDate,
-    TotalPurchaseAmount: req.body.totalPurchaseAmount,
-  });
+const addPurchase = async (req, res) => {
+  try {
+    const {
+      merchant_id,
+      date_purchased,
+      product_id,
+      cost_price_per_unit,
+      total_cost_price,
+      units_purchased,
+      supplier_id
+    } = req.body;
+    console.log("Request Body: ",req.body);
 
-  addPurchaseDetails
-    .save()
-    .then((result) => {
-      purchaseStock(req.body.productID, req.body.quantityPurchased);
-      res.status(200).send(result);
-    })
-    .catch((err) => {
-      res.status(402).send(err);
+    const newPurchase = new Purchase({
+      merchant_id,
+      date_purchased,
+      product_id,
+      cost_price_per_unit,
+      total_cost_price,
+      units_purchased,
+      supplier_id
     });
+
+    // Save the new purchase data to the database
+    const savedPurchase = await newPurchase.save();
+
+    res.status(201).json({message:"Purchase added successfully!!",purchase:savedPurchase});
+  } catch (error) {
+    console.error('Error adding purchase:', error);
+    res.status(500).json({ error: 'Failed to add purchase data' });
+  }
 };
 
-// Get All Purchase Data
+// Get Purchase Data of a Merchant
 const getPurchaseData = async (req, res) => {
-  const findAllPurchaseData = await Purchase.find({"userID": req.params.userID})
-    .sort({ _id: -1 })
-    .populate("ProductID"); // -1 for descending order
-  res.json(findAllPurchaseData);
+  try {
+    const merchantID = req.params.merchantID;
+
+    const purchaseData = await Purchase.find({ "merchant_id": merchantID }).lean();
+
+    // Preprocess dates to make them sortable
+    purchaseData.forEach(purchase => {
+      const [month, day, year] = purchase.date_purchased.split('/');
+      const dateObj = new Date(`${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`);
+      purchase.sortable_date = dateObj;
+    });
+
+    // Sort based on the preprocessed dates
+    purchaseData.sort((a, b) => b.sortable_date - a.sortable_date);
+
+    // Remove the temporary sortable_date field from the response
+    purchaseData.forEach(purchase => delete purchase.sortable_date);
+
+    res.json(purchaseData);
+  } catch (error) {
+    console.error('Error while fetching purchase data:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
 };
 
-// Get total purchase amount
+// Get total purchase amount of a Merchant
 const getTotalPurchaseAmount = async (req, res) => {
-  let totalPurchaseAmount = 0;
-  const purchaseData = await Purchase.find({"userID": req.params.userID});
-  purchaseData.forEach((purchase) => {
-    totalPurchaseAmount += purchase.TotalPurchaseAmount;
-  });
-  res.json({ totalPurchaseAmount });
+  try {
+    let totalPurchaseAmount = 0;
+    const purchaseData = await Purchase.find({ "merchant_id": req.params.merchantID });
+
+    purchaseData.forEach((purchase) => {
+      totalPurchaseAmount += purchase.total_cost_price;
+    });
+
+    res.json({ merchant_id:req.params.merchantID,TotalAmount:totalPurchaseAmount });
+  } catch (error) {
+    console.error('Error while calculating total purchase amount:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
 };
 
-module.exports = { addPurchase, getPurchaseData, getTotalPurchaseAmount };
+
+//Get Purchase Data of Every Merchant in the system
+const allPurchaseData=async (req, res) => {
+  try {
+      
+      // Fetch all documents sorted by date_sold in descending order
+      const sortedPurchases = await Purchase.find()
+          .sort({ date_purchased: -1 }); // Sorting by date_sold in descending order
+
+      res.json(sortedPurchases); // Return the sorted documents as a JSON response
+  } catch (error) {
+      console.error('Error while fetching Merchant Purchases:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+module.exports = { addPurchase, getPurchaseData, getTotalPurchaseAmount, allPurchaseData };

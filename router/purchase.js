@@ -4,25 +4,17 @@ const router=express.Router();
 const purchase = require("../controller/purchase");
 const Purchase=require("../models/purchase");
 
-// Add Purchase
+// Add Purchase Data
 router.post("/add", purchase.addPurchase);
 
-// Get All Purchase Data
-router.get('/all_purchases', async (req, res) => {
-    try {
-        
-        // Fetch all documents sorted by date_sold in descending order
-        const sortedPurchases = await Purchase.find()
-            .sort({ date_purchased: -1 }); // Sorting by date_sold in descending order
+// Get Purchase Data of every merchant in the system
+router.get('/all_purchases', purchase.allPurchaseData);
 
-        res.json(sortedPurchases); // Return the sorted documents as a JSON response
-    } catch (error) {
-        console.error('Error while fetching Merchant Purchases:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-});
+//Get Purchase Data for a particular merchant
+router.get("/get/purchase_data/:merchantID", purchase.getPurchaseData);
 
-router.get("/get/:userID/totalpurchaseamount", purchase.getTotalPurchaseAmount);
+//Get total Purchase amount for a particular merchant
+router.get("/get/totalpurchaseamount/:merchantID", purchase.getTotalPurchaseAmount);
 
 module.exports = router;
 
