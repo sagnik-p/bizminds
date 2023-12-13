@@ -68,13 +68,32 @@ const updateSelectedProduct = async (req, res) => {
   }
 };
 
-// Search Products
-const searchProduct = async (req, res) => {
-  const searchTerm = req.query.searchTerm;
-  const products = await Product.find({
-    name: { $regex: searchTerm, $options: "i" },
-  });
-  res.json(products);
+// Search Product By name
+const searchProductByName = async (req, res) => {
+  try {
+    const productName = req.query.name;
+    const products = await Product.find({
+      name: { $regex: productName, $options: "i" },
+    });
+    res.json(products);
+  } catch (error) {
+    console.error('Error while searching products by name:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+// Search Product By ID
+const searchProductById=async(req,res)=>{
+  try {
+    const product_id = req.query.productID;
+    const products = await Product.find({
+      product_id: product_id,
+    });
+    res.json(products);
+  } catch (error) {
+    console.error('Error while searching products by Product ID:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
 };
 
 module.exports = {
@@ -82,5 +101,6 @@ module.exports = {
   getAllProducts,
   deleteSelectedProduct,
   updateSelectedProduct,
-  searchProduct,
+  searchProductByName,
+  searchProductById
 };
