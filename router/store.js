@@ -25,44 +25,9 @@ router.post("/add", async (req, res) => {
     });
 });
 
-// Get All Suppliers from DATABASE
-router.get("/all_suppliers", async (req, res) => {
-    try {
-      const pipeline = [
-        {
-          $project: {
-            _id: 1,
-            supplier_id: 1,
-            name: 1,
-            shop_name: 1,
-            email: 1,
-            phone: 1,
-            address: 1,
-            products_sold: 1,
-            product_prices: 1,
-            rating: 1,
-            averageRating: {
-              $avg: "$rating" // Calculate average of the "rating" array
-            }
-          }
-        },
-        {
-          $sort: {
-            averageRating: -1 // Sort by averageRating in descending order
-          }
-        }
-      ];
-  
-      const sortedSuppliers = await Supplier.aggregate(pipeline); // Get the aggregation result directly
-  
-      res.json(sortedSuppliers); // Send the JSON response
-    } catch (error) {
-      console.error('Error while fetching sorted suppliers:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
-    }
-  });
-  
-  router.get('/:rating_index', async (req, res) => {
+//rating:[Average rating,Delivery,Quality,Responsiveness,Price]
+//Get all suppliers sorted according to various rating parameters
+router.get('/:rating_index', async (req, res) => {
     try {
         const ratingIndex = parseInt(req.params.rating_index);
 
