@@ -2,27 +2,33 @@ const Sales = require("../models/sales");
 const soldStock = require("../controller/soldStock");
 const Purchase = require("../models/purchase");
 
-// Add Sales
-const addSales = (req, res) => {
-  const addSale = new Sales({
-    userID: req.body.userID,
-    ProductID: req.body.productID,
-    StoreID: req.body.storeID,
-    StockSold: req.body.stockSold,
-    SaleDate: req.body.saleDate,
-    TotalSaleAmount: req.body.totalSaleAmount,
-  });
+// Add Sales data
+const addSales=async (req, res) => {
+  try {
+    // Destructure values from the request body
+    const { merchant_id, date_sold, product_id, selling_price_per_unit, total_selling_price, units_sold } = req.body;
 
-  addSale
-    .save()
-    .then((result) => {
-      soldStock(req.body.productID, req.body.stockSold);
-      res.status(200).send(result);
-    })
-    .catch((err) => {
-      res.status(402).send(err);
+    // Create a new Sale instance
+    const newSale = new Sales({
+      merchant_id,
+      date_sold,
+      product_id,
+      selling_price_per_unit,
+      total_selling_price,
+      units_sold
     });
+
+    // Save the new sale to the database
+    const savedSale = await newSale.save();
+
+    // Return a success message with the saved sale data
+    res.status(201).json({ message: 'Sale added successfully', sale: savedSale });
+  } catch (error) {
+    console.error('Error adding sale:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
 };
+
 
 // Get All Sales Data
 const getSalesData = async (req, res) => {
