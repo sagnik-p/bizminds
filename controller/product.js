@@ -28,7 +28,6 @@ const addProduct = async (req, res) => {
 // Get All Products
 const getAllProducts = async (req, res) => {
   const findAllProducts = await Product.find({
-    userID: req.params.userId,
   }).sort({ _id: -1 }); // -1 for descending;
   res.json(findAllProducts);
 };

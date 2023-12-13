@@ -7,7 +7,7 @@ const product = require("../controller/product");
 router.post('/add', product.addProduct);
 
 // Get All Products
-router.get("/get/:userId", product.getAllProducts);
+router.get("/getAllProducts", product.getAllProducts);
 
 // Delete Selected Product Item
 router.get("/delete/:id", product.deleteSelectedProduct);
