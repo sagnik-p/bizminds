@@ -6,7 +6,7 @@ const PurchaseSchema = new mongoose.Schema({
     required: true
   },
   date_purchased: {
-    type: Date,
+    type: String,
     required: true
   },
   product_id: {
