@@ -1,37 +1,34 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
-const SaleSchema = new mongoose.Schema(
-  {
-    userID: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "users",
-      required: true,
-    },
-    ProductID: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "product",
-      required: true,
-    },
-    StoreID: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "store",
-      required: false,
-    },
-    StockSold: {
-      type: Number,
-      required: true,
-    },
-    SaleDate: {
-      type: String,
-      required: true,
-    },
-    TotalSaleAmount: {
-      type: Number,
-      required: true,
-    },
+const SaleSchema = new mongoose.Schema({
+  merchant_id: {
+    type: String,
+    required: true
   },
-  { timestamps: true }
+  date_sold: {
+    type: String,
+    required: true
+  },
+  product_id: {
+    type: String,
+    required: true
+  },
+  selling_price_per_unit: {
+    type: Number,
+    required: true
+  },
+  total_selling_price: {
+    type: Number,
+    required: true
+  },
+  units_sold: {
+    type: Number,
+    required: true
+  }
+},
+{timestamps:true}
 );
 
-const Sales = mongoose.model("Customer_Sales", SaleSchema);
+const Sales = mongoose.model('customer_sales', SaleSchema);
+
 module.exports = Sales;

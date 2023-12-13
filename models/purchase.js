@@ -1,32 +1,38 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
-const PurchaseSchema = new mongoose.Schema(
-  {
-    userID: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "users",
-      required: true,
-    },
-    ProductID: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "product",
-      required: true,
-    },
-    QuantityPurchased: {
-      type: Number,
-      required: true,
-    },
-    PurchaseDate: {
-      type: String,
-      required: true,
-    },
-    TotalPurchaseAmount: {
-      type: Number,
-      required: true,
-    },
+const PurchaseSchema = new mongoose.Schema({
+  merchant_id: {
+    type: String,
+    required: true
   },
-  { timestamps: true }
+  date_purchased: {
+    type: Date,
+    required: true
+  },
+  product_id: {
+    type: String,
+    required: true
+  },
+  cost_price_per_unit: {
+    type: Number,
+    required: true
+  },
+  total_cost_price: {
+    type: Number,
+    required: true
+  },
+  units_purchased: {
+    type: Number,
+    required: true
+  },
+  supplier_id: {
+    type: String,
+    required: true
+  }
+},
+{ timestamps: true }
 );
 
-const Purchase = mongoose.model("Merchant_Purchases", PurchaseSchema);
+const Purchase = mongoose.model('merchant_purchases', PurchaseSchema);
+
 module.exports = Purchase;
