@@ -1,26 +1,28 @@
-const Product = require("../models/Product");
+const Product = require("../models/product");
 const Purchase = require("../models/purchase");
 const Sales = require("../models/sales");
 
-// Add Post
-const addProduct = (req, res) => {
-  console.log("req: ", req.body.userId);
-  const addProduct = new Product({
-    userID: req.body.userId,
-    name: req.body.name,
-    manufacturer: req.body.manufacturer,
-    stock: 0,
-    description: req.body.description,
-  });
+// Add New Product
+const addProduct = async (req, res) => {
+  try {
+      const count = await Product.countDocuments();
+      const nextProductId = count + 1;
+      const { name, product_info } = req.body;
+      const image = req.body.image || '';
+      const newProduct = new Product({
+          name,
+          image,
+          product_id: `${nextProductId}`,
+          product_info
+      });
 
-  addProduct
-    .save()
-    .then((result) => {
-      res.status(200).send(result);
-    })
-    .catch((err) => {
-      res.status(402).send(err);
-    });
+      await newProduct.save();
+
+      res.status(201).json({ message: 'Product added successfully', product: newProduct });
+  } catch (error) {
+      console.error('Error adding product:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+  }
 };
 
 // Get All Products
