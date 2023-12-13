@@ -1,22 +1,30 @@
 const express = require("express");
 const { main } = require("./models/index");
 const productRoute = require("./router/product");
-const storeRoute = require("./router/store");
+const supplierRoute = require("./router/store");
 const purchaseRoute = require("./router/purchase");
 const salesRoute = require("./router/sales");
+const stockRoute=require('./router/stock');
 const cors = require("cors");
-const User = require("./models/users");
-const Product = require("./models/Product");
+const Merchant = require("./models/merchants");
+const Product = require("./models/product");
+const ratingRoute = require("./router/rating");
 
 
 const app = express();
-const PORT = 4000;
+const Port = process.env.PORT || 3000;
 main();
 app.use(express.json());
 app.use(cors());
 
 // Store API
-app.use("/api/store", storeRoute);
+app.use("/api/suppliers", supplierRoute);
+
+// Ratings API
+app.use("/api/ratings", ratingRoute);
+
+
+app.use("/api/stocks", stockRoute);
 
 // Products API
 app.use("/api/product", productRoute);
@@ -28,22 +36,22 @@ app.use("/api/purchase", purchaseRoute);
 app.use("/api/sales", salesRoute);
 
 // ------------- Signin --------------
-let userAuthCheck;
+let merchantAuthCheck;
 app.post("/api/login", async (req, res) => {
   console.log(req.body);
   //res.send("hi");
   try {
-    const user = await User.findOne({
+    const merchant = await Merchant.findOne({
       email: req.body.email,
       password: req.body.password,
     });
-    console.log("USER: ", user);
-    if (user) {
-      res.send(user);
-      userAuthCheck = user;
+    console.log("Merchant: ", merchant);
+    if (merchant) {
+      res.send(merchant);
+      merchantAuthCheck = merchant;
     } else {
       res.status(401).send("Invalid Credentials");
-      userAuthCheck = null;
+      merchantAuthCheck = null;
     }
   } catch (error) {
     console.log(error);
@@ -51,16 +59,16 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
-// Getting User Details of login user
+// Getting Merchant Details of login merchant
 app.get("/api/login", (req, res) => {
-  res.send(userAuthCheck);
+  res.send(merchantAuthCheck);
 });
 // ------------------------------------
 
 // Registration API
 app.post("/api/register", (req, res) => {
   console.log("trying to register");
-  let registerUser = new User({
+  let registerMerchant = new Merchant({
     name: req.body.firstName,
     merchant_id:req.body.merchantId,
     shop_name:req.body.shopName,
@@ -70,7 +78,7 @@ app.post("/api/register", (req, res) => {
     password: req.body.password,
   });
 
-  registerUser
+  registerMerchant
     .save()
     .then((result) => {
       res.status(200).send(result);
@@ -88,6 +96,6 @@ app.get("/testget", async (req,res)=>{
 })
 
 // Here we are listening to the server
-app.listen(PORT, () => {
-  console.log("I am live again");
+app.listen(Port, () => {
+  console.log(`Server listening on port ${Port}`);
 });
