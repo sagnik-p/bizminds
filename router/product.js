@@ -15,8 +15,11 @@ router.get("/delete/:id", product.deleteSelectedProduct);
 // Update Selected Product
 router.post("/update", product.updateSelectedProduct);
 
-// Search Product
-router.get("/search", product.searchProduct);
+// Search Product By Product Name
+router.get("/search_by_name", product.searchProductByName);
+
+//Search Product By Product ID
+router.get("/search_by_id",product.searchProductById);
 
 // http://localhost:4000/api/product/search?searchTerm=fa
 
