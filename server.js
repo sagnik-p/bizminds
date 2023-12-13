@@ -3,6 +3,7 @@ const { main } = require("./models/index");
 const productRoute = require("./router/product");
 const supplierRoute = require("./router/store");
 const purchaseRoute = require("./router/purchase");
+const issueRoute=require("./router/issue");
 const salesRoute = require("./router/sales");
 const stockRoute=require('./router/stock');
 const cors = require("cors");
@@ -15,6 +16,7 @@ const app = express();
 const Port = process.env.PORT || 3000;
 main();
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 // Store API
@@ -23,6 +25,8 @@ app.use("/api/suppliers", supplierRoute);
 // Ratings API
 app.use("/api/ratings", ratingRoute);
 
+// Issue API
+app.use("/api/issues",issueRoute);
 
 app.use("/api/stocks", stockRoute);
 
