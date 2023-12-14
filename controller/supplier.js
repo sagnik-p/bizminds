@@ -93,6 +93,7 @@ const getSupplierByProductID=async (req, res) => {
 
         // Find suppliers that sell the specified product
         const suppliers = await Supplier.find({ "products_sold": productId });
+        const product_info=await Product.find({"product_id":productId});
 
         if (!suppliers || suppliers.length === 0) {
             return res.status(404).json({ error: 'Suppliers for the product not found' });
@@ -107,7 +108,7 @@ const getSupplierByProductID=async (req, res) => {
             });
         }
 
-        res.json(suppliers);
+        res.json({Product:product_info, Suppliers:suppliers});
     } catch (error) {
         console.error('Error while fetching suppliers:', error);
         res.status(500).json({ error: 'Internal Server Error' });
