@@ -27,9 +27,13 @@ const addProduct = async (req, res) => {
 
 // Get All Products
 const getAllProducts = async (req, res) => {
-  const findAllProducts = await Product.find({
-  }).sort({ _id: -1 }); // -1 for descending;
-  res.json(findAllProducts);
+  try {
+    const findAllProducts = await Product.find({}).sort({ _id: -1 }); // -1 for descending
+    res.json(findAllProducts);
+  } catch (error) {
+    console.error('Error while fetching all products:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
 };
 
 // Delete Selected Product
