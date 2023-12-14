@@ -47,7 +47,7 @@ const SupplierSchema = new mongoose.Schema({
   }, 
   rating: {
     type: [{
-        type: String
+        type: Number
     }],
     required: false,
 }, 

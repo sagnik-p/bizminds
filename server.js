@@ -1,7 +1,7 @@
 const express = require("express");
 const { main } = require("./models/index");
 const productRoute = require("./router/product");
-const supplierRoute = require("./router/store");
+const supplierRoute = require("./router/supplier");
 const purchaseRoute = require("./router/purchase");
 const issueRoute=require("./router/issue");
 const salesRoute = require("./router/sales");
