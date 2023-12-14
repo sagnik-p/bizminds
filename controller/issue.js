@@ -24,4 +24,18 @@ const addIssue= async (req, res) => {
     }
   };
 
-  module.exports={addIssue};
+//Get the issues based on merchant_id
+const getIssues=async (req, res) => {
+    try {
+      const { merchant_id } = req.params;
+  
+      const issues = await Issue.find({ merchant_id });
+  
+      res.status(200).json({ issues });
+    } catch (error) {
+      console.error('Error fetching issues:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
+  module.exports={addIssue,getIssues};
