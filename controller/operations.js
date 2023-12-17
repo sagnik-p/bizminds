@@ -103,11 +103,10 @@ function validateOperation(operation) {
     try {
       const { merchant_id, type } = req.params;
       const { product, supplier, quantity, date} = req.body;
-  
       // Validate date format
       const currentDate = new Date();
   
-      if (!product || !supplier || !quantity || !date) {
+      if (!product || !supplier || !quantity) {
         return res.status(400).json({ error: 'Missing required fields in the request body' });
       }
 
