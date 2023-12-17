@@ -10,6 +10,7 @@ const cors = require("cors");
 const Merchant = require("./models/merchants");
 const Product = require("./models/product");
 const ratingRoute = require("./router/rating");
+const operationsRoute=require("./router/operations");
 
 
 const app = express();
@@ -38,6 +39,9 @@ app.use("/api/purchase", purchaseRoute);
 
 // Sales API
 app.use("/api/sales", salesRoute);
+
+// Operations API
+app.use("/api/operations",operationsRoute);
 
 // ------------- Signin --------------
 let merchantAuthCheck;
