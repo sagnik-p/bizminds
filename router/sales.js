@@ -5,28 +5,6 @@ const sales = require("../controller/sales");
 const Sales = require("../models/sales");
 const Purchase=require("../models/purchase");
 
-function getMonthNumber(monthName) {
-    const months = {
-        "January": 1,
-        "February": 2,
-        "March": 3,
-        "April": 4,
-        "May": 5,
-        "June": 6,
-        "July": 7,
-        "August": 8,
-        "September": 9,
-        "October": 10,
-        "November": 11,
-        "December": 12
-    };
-
-    // Convert the month name to title case (e.g., "january" to "January")
-    const formattedMonth = monthName.charAt(0).toUpperCase() + monthName.slice(1).toLowerCase();
-
-    return months[formattedMonth] || null;
-}
-
 // Add Sales
 router.post("/add", sales.addSales);
 
@@ -56,6 +34,9 @@ router.post('/profit_by_day', sales.getProfitByDay);
 router.post("/monthly_profit", sales.getProfitByMonth);
 
 router.get('/all_sales', sales.getAllSales);
+
+//Get 12 months of sales for a specific merchant_id
+router.get('/:merchant_id/12months_sales', sales.getMonthwiseSales);
   
 
 module.exports = router;
