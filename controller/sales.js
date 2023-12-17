@@ -276,4 +276,53 @@ const getAllSales=async (req, res) => {
   }
 };
 
-module.exports = { addSales, getMonthlySales, getSalesData,  getTotalSalesAmount, getTotalProfit, getProfitByDay, getProfitByMonth, getAllSales};
+const getMonthwiseSales=async (req, res) => {
+  const merchantId = req.params.merchant_id;
+
+  try {
+    const twelveMonthsSales = await Sales.aggregate([
+      {
+        $match: {
+          merchant_id: merchantId
+          // Add any other conditions if needed
+        }
+      },
+      {
+        $addFields: {
+          parsedDate: {
+            $dateFromString: {
+              dateString: "$date_sold",
+              format: "%m/%d/%Y" // Modify this format based on your date string format
+            }
+          }
+        }
+      },
+      {
+        $match: {
+          parsedDate: {
+            $gte: new Date(new Date().getFullYear() - 1, new Date().getMonth(), 1) // Sales from the last 12 months
+          }
+        }
+      },
+      {
+        $group: {
+          _id: {
+            month: { $month: "$parsedDate" }, // Extract month
+            year: { $year: "$parsedDate" } // Extract year
+          },
+          totalSalesAmount: { $sum: "$total_selling_price" }
+        }
+      },
+      {
+        $sort: { "_id.year": 1, "_id.month": 1 } // Sort by year and month
+      }
+    ]);
+
+    res.json(twelveMonthsSales);
+  } catch (error) {
+    console.error('Error fetching sales data:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+module.exports = { addSales, getMonthlySales, getSalesData,  getTotalSalesAmount, getTotalProfit, getProfitByDay, getProfitByMonth, getAllSales, getMonthwiseSales};
