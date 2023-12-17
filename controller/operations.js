@@ -139,7 +139,7 @@ function validateOperation(operation) {
 
   const editOperation = async (req, res) => {
     try {
-      const { merchant_id, type, operation_id } = req.params;
+      const { merchant_id, operation_id } = req.params;
       const updateFields = req.body; // Object containing fields to update
   
       // Check if fields are allowed to be edited
@@ -153,14 +153,14 @@ function validateOperation(operation) {
       // Construct update object to update multiple fields
       const updateObject = {};
       for (const field in updateFields) {
-        updateObject[`${type}.$.${field}`] = updateFields[field];
+        updateObject[`${field}`] = updateFields[field];
       }
   
-      // Find and update the specified fields in the specified array
+      // Find and update the specified fields in the entire document
       const updatedOperation = await Operation.findOneAndUpdate(
-        { merchant_id, [`${type}.operation_id`]: operation_id },
-        { $set: updateObject },
-        { new: true }
+        { merchant_id, 'backlog.operation_id': operation_id },
+        { $set: { 'backlog.$[elem].product': updateObject.product, 'backlog.$[elem].supplier': updateObject.supplier, 'backlog.$[elem].quantity': updateObject.quantity } },
+        { new: true, arrayFilters: [{ 'elem.operation_id': operation_id }] }
       );
   
       if (!updatedOperation) {
@@ -288,5 +288,55 @@ const cancelOrder=async (req, res) => {
     }
   };
 
-module.exports={addOperation,addSpOperation,editOperation,deleteOperation,checkStatus,fetchOperations,cancelOrder};
+  const changeStatus= async (req, res) => {
+    try {
+      const { merchant_id, operation_id, destination } = req.params;
+  
+      // Find the operation document based on merchant_id
+      const operation = await Operation.findOne({ merchant_id });
+  
+      if (!operation) {
+        return res.status(404).json({ error: 'Merchant not found' });
+      }
+  
+      // Check if the provided destination is a valid array within the document
+      if (!operation[destination]) {
+        return res.status(400).json({ error: 'Invalid destination array' });
+      }
+  
+      // Find the source array containing the operation object
+      let sourceArray;
+      let sourceArrayName;
+  
+      ['backlog', 'placed', 'delivered', 'cancelled'].forEach((arrayName) => {
+        if (operation[arrayName].some((item) => item.operation_id === operation_id)) {
+          sourceArray = operation[arrayName];
+          sourceArrayName = arrayName;
+        }
+      });
+  
+      if (!sourceArray) {
+        return res.status(404).json({ error: 'Operation not found in any array' });
+      }
+  
+      const operationIndex = sourceArray.findIndex((item) => item.operation_id === operation_id);
+  
+      const operationToMove = sourceArray.splice(operationIndex, 1)[0];
+  
+      operation[destination].push(operationToMove);
+  
+      // Save the updated document
+      await operation.save();
+  
+      res.status(200).json({
+        message: `Operation ${operation_id} moved from ${sourceArrayName} to ${destination}`,
+        operation,
+      });
+    } catch (error) {
+      console.error('Error while moving operation:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  };
+
+module.exports={addOperation,addSpOperation,editOperation,deleteOperation,checkStatus,fetchOperations,cancelOrder, changeStatus};
   

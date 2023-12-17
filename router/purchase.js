@@ -16,6 +16,11 @@ router.get("/get/purchase_data/:merchantID", purchase.getPurchaseData);
 //Get total Purchase amount for a particular merchant
 router.get("/get/totalpurchaseamount/:merchantID", purchase.getTotalPurchaseAmount);
 
+const { ObjectId } = require('mongoose').Types;
+
+router.get('/monthwise/:merchant_id', purchase.monthWisePurchase);
+
+
 module.exports = router;
 
 // http://localhost:4000/api/purchase/add POST

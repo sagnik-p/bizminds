@@ -95,4 +95,45 @@ const allPurchaseData=async (req, res) => {
   }
 };
 
-module.exports = { addPurchase, getPurchaseData, getTotalPurchaseAmount, allPurchaseData };
+const monthWisePurchase=async (req, res) => {
+  try {
+    const { merchant_id } = req.params;
+
+    // Get the current date
+    const currentDate = new Date();
+
+    // Calculate the date 12 months ago from the current date
+    const twelveMonthsAgo = new Date();
+    twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 12);
+
+    // Find purchases within the last 12 months for the specified merchant_id
+    const purchases = await Purchase.find({ merchant_id });
+
+    const salesByMonth = Array.from({ length: 12 }, (_, index) => {
+      const monthStart = new Date(currentDate.getFullYear(), currentDate.getMonth() - index, 1);
+      const monthEnd = new Date(currentDate.getFullYear(), currentDate.getMonth() - index + 1, 0);
+
+      const salesInMonth = purchases.reduce((totalSales, purchase) => {
+        const purchaseDate = new Date(purchase.date_purchased);
+        if (purchaseDate >= monthStart && purchaseDate <= monthEnd) {
+          totalSales += purchase.total_cost_price; // Assuming 'total_cost_price' indicates the sale value
+        }
+        return totalSales;
+      }, 0);
+
+      // return {
+      //   month: monthStart.toLocaleString('default', { month: 'long' }),
+      //   year: monthStart.getFullYear(),
+      //   totalPurchaseAmount: salesInMonth
+      // };
+      return salesInMonth;
+    });
+
+    res.status(200).json(salesByMonth);
+  } catch (error) {
+    console.error('Error while fetching sales:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+module.exports = { addPurchase, getPurchaseData, getTotalPurchaseAmount, allPurchaseData, monthWisePurchase };

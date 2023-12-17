@@ -9,7 +9,7 @@ router.post("/add_operation",operations.addOperation);
 router.post('/add/:merchant_id/:type', operations.addSpOperation);
 
 // PATCH endpoint to edit multiple fields of an object in one of the arrays
-router.patch('/edit/:merchant_id/:type/:operation_id', operations.editOperation);
+router.patch('/edit/:merchant_id/:operation_id', operations.editOperation);
 
 // DELETE endpoint to delete an object(Operation) in one of the arrays
 router.delete('/delete/:merchant_id/:type/:operation_id', operations.deleteOperation);
@@ -22,6 +22,10 @@ router.get('/get/:merchant_id', operations.fetchOperations);
 
 // Endpoint to move an operation from placed to cancelled based on merchant_id and operation_id
 router.patch('/cancel_operation/:merchant_id/:operation_id', operations.cancelOrder);
+
+//Endpoint to change the status of an operation
+router.patch('/move-operation/:merchant_id/:operation_id/:destination', operations.changeStatus);
+  
   
   
 module.exports=router;
