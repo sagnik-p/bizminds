@@ -102,12 +102,12 @@ function validateOperation(operation) {
   const addSpOperation=async (req, res) => {
     try {
       const { merchant_id, type } = req.params;
-      const { product, supplier, price} = req.body;
+      const { product, supplier, quantity, date} = req.body;
   
       // Validate date format
       const currentDate = new Date();
   
-      if (!product || !supplier || !price) {
+      if (!product || !supplier || !quantity || !date) {
         return res.status(400).json({ error: 'Missing required fields in the request body' });
       }
 
@@ -120,7 +120,7 @@ function validateOperation(operation) {
         product,
         supplier,
         quantity,
-        date: currentDate.toISOString(), // Date when the API is called
+        date: date || currentDate.toISOString(), 
       };
 
       const updateCounter=await Counter.updateOne({name:"counter"},{$set:{value:value}});
